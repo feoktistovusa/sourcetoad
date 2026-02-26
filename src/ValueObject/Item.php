@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\ValueObject;
+
+readonly class Item
+{
+    public function __construct(
+        public string $name,
+        public Money $price,
+    ) {}
+}
