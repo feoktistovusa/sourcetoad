@@ -7,20 +7,20 @@ namespace App\ValueObject;
 readonly class CustomerName
 {
     public function __construct(
-        public string $first,
-        public string $last,
+        public string $firstName,
+        public string $lastName,
     ) {
-        if (trim($first) === '') {
+        if (trim($firstName) === '') {
             throw new \InvalidArgumentException('First name cannot be empty.');
         }
 
-        if (trim($last) === '') {
+        if (trim($lastName) === '') {
             throw new \InvalidArgumentException('Last name cannot be empty.');
         }
     }
 
-    public function full(): string
+    public function getFullName(): string
     {
-        return "{$this->first} {$this->last}";
+        return "{$this->firstName} {$this->lastName}";
     }
 }

@@ -1,12 +1,6 @@
 # Sourcetoad PHP Assessment
 
-PHP 8.2, PSR-12, Composer autoload. Three exercises.
-
-## Setup
-
-```bash
-composer install
-```
+PHP 8.2, PSR-12. Three exercises.
 
 ## Running
 
@@ -20,18 +14,21 @@ php questions/question3.php
 
 ```
 src/
-├── Contract/       # Interfaces (ShippingCalculatorInterface, TaxCalculatorInterface)
-├── Entity/         # Cart (aggregate), CartItem, Customer
+├── Contract/       # Interfaces (ShippingCalculatorInterface)
+├── Entity/         # Cart (aggregate), Customer
 ├── Exception/      # CartException
-├── Service/        # TaxCalculator
-├── Support/        # ArrayPrinter, ArraySorter
 └── ValueObject/    # Address, CustomerName, Item, Money
-questions/          # Runnable scripts for each exercise
+questions/
+├── data.php        # Shared guest data array (used by Q1 and Q2)
+├── question1.php
+├── question2.php
+└── question3.php
 ```
 
-#### Q1 uses `ArrayPrinter` to recursively dump a nested array.
-#### Q2 uses `ArraySorter` to sort by one or more keys at any depth.
-#### Q3 wires up the full cart: customer, addresses, items, tax, shipping.
+#### Q1 — self-contained recursive function that prints all nested key-value pairs at any depth.
+#### Q2 — self-contained recursive function that sorts by one or more keys at any depth, with ASC/DESC support.
+#### Q3 — full cart: customer, addresses, items, per-item cost (incl. tax & shipping), subtotal, tax, total.
 
 Money is stored as integer cents throughout to avoid float precision issues.
-Shipping is injected via interface, the demo uses an anonymous class stub.
+Tax rate is 7%, defined as a constant in `Cart`.
+Shipping is injected via `ShippingCalculatorInterface`; the demo uses an anonymous class stub.

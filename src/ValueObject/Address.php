@@ -25,7 +25,7 @@ readonly class Address
             throw new \InvalidArgumentException('State cannot be empty.');
         }
 
-        if (!trim($zip)) {
+        if (trim($zip) === '') {
             throw new \InvalidArgumentException('ZIP code cannot be empty.');
         }
     }

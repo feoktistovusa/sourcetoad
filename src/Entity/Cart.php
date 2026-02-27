@@ -5,22 +5,24 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Contract\ShippingCalculatorInterface;
-use App\Contract\TaxCalculatorInterface;
 use App\Exception\CartException;
 use App\ValueObject\Address;
+use App\ValueObject\Item;
 use App\ValueObject\Money;
 
 class Cart
 {
+    private const TAX_RATE = 0.07;
+
     private ?Customer $customer = null;
 
+    /** @var Item[] */
     private array $items = [];
 
     private ?Address $shippingAddress = null;
 
     public function __construct(
         private readonly ShippingCalculatorInterface $shippingCalculator,
-        private readonly TaxCalculatorInterface $taxCalculator,
     ) {}
 
     public function setCustomer(Customer $customer): void
@@ -40,12 +42,12 @@ class Cart
         return $this->customer;
     }
 
-    public function addItem(CartItem $item): void
+    public function addItem(Item $item): void
     {
         $this->items[] = $item;
     }
 
-    /** @return CartItem[] */
+    /** @return Item[] */
     public function getItems(): array
     {
         return $this->items;
@@ -72,14 +74,14 @@ class Cart
     {
         return array_reduce(
             $this->items,
-            fn(Money $carry, CartItem $item) => $carry->add($item->getLineTotal()),
+            fn(Money $carry, Item $item) => $carry->add($item->price->multiply($item->quantity)),
             Money::fromCents(0),
         );
     }
 
     public function getTax(): Money
     {
-        return $this->taxCalculator->calculate($this->getSubtotal());
+        return $this->getSubtotal()->percentage(self::TAX_RATE);
     }
 
     /**
@@ -92,10 +94,17 @@ class Cart
 
     public function getTotal(): Money
     {
-        $subtotal = $this->getSubtotal();
-
-        return $subtotal
-            ->add($this->taxCalculator->calculate($subtotal))
+        return $this->getSubtotal()
+            ->add($this->getTax())
             ->add($this->getShippingCost());
+    }
+
+    public function getItemCostWithShippingAndTax(Item $item): Money
+    {
+        $lineTotal = $item->price->multiply($item->quantity);
+        $tax = $lineTotal->percentage(self::TAX_RATE);
+        $itemShipping = $this->getShippingCost()->percentage(1 / count($this->items));
+
+        return $lineTotal->add($tax)->add($itemShipping);
     }
 }
